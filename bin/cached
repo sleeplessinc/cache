@@ -7,7 +7,7 @@ var http	= require( 'http' );
 var url		= require( 'url' );
 
 var DS		= require( 'ds' ).DS;
-var store	= new DS( './ds.json', { autoSave: 10 } );
+var store	= new DS( './ds.json' ); //, { autoSave: 10 } );
 
 // store._expireTimes is where we store our expiration timestamps.
 if( store[ "_expireTimes" ] === undefined) {
@@ -48,7 +48,7 @@ function listener( req, res ) {
 	var val		= query.val;
 	var ttl		= parseInt(query.ttl) || 0;
 
-	log("act="+act+" key="+key+" val="+val+" ttl="+ttl);
+	//log("act="+act+" key="+key+" val="+val+" ttl="+ttl);
 
 
 	if(req.url == "/favicon.ico") { res.writeHead(410); res.end(); return; }
@@ -92,7 +92,7 @@ function listener( req, res ) {
 			return;
 		}
 
-		log("val="+val);
+		//log("val="+val);
 		try {
 			val = JSON.parse( val );
 		}
@@ -139,7 +139,7 @@ function pulse() {
 		if( xtime && time() >= xtime ) {
 			delete expireTimes[ k ];
 			delete store[ k ];
-			log( "dropped: "+k );
+			//log( "dropped: "+k );
 		}
 	}
 
