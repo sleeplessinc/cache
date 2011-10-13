@@ -14,9 +14,13 @@ function cache( $url, $rawOpts ) {
 	$ch = curl_init( $uri );
 	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
 	$r = curl_exec( $ch );
+	if($r === false) {
+		echo "ERROR: cache server unavailable\n";
+		return null;
+	}
 	$o = json2obj($r);
-	//if($o->error)
-	//	echo "ERROR: $o->error\n";
+	if($o->error)
+		echo "ERROR: $o->error\n";
 	return $o->value;
 }
 
@@ -29,19 +33,19 @@ function cacheSet($k, $o) {
 		'val' => obj2json($v),
 		'ttl' => 10
 		));
-	//echo "(cacheSet($k, $v) returning $r)\n";
+	echo "(cacheSet($k, $v) returning $r)\n";
 	return $r;
 }
 
 function cacheGet($k) {
 	global $cacheHost;
 	$v = cache( $cacheHost, array( 'act' => 'get', 'key' => $k ) );
-	//echo "(cacheGet($k) returning ".($v === null ? "null" : $v).")\n";
+	echo "(cacheGet($k) returning ".($v === null ? "null" : $v).")\n";
 	return $v;
 }
 
 
-if(false) {
+if(true) {
 
 	// test code
 
