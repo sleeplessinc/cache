@@ -7,7 +7,7 @@ var http	= require( 'http' );
 var url		= require( 'url' );
 
 var DS		= require( 'ds' ).DS;
-var store	= new DS( './ds.json' );
+var store	= new DS( './ds.json', { autoSave: 10 } );
 
 // store._expireTimes is where we store our expiration timestamps.
 if( store[ "_expireTimes" ] === undefined) {
@@ -26,11 +26,11 @@ http.ServerResponse.prototype.writeJSON = function( json ) {
 }
 
 http.ServerResponse.prototype.error	= function( err ) {
-	this.writeJSON( { 'err' : err } );
+	this.writeJSON( { error : err, value : null } );
 }
 
 http.ServerResponse.prototype.success	= function( msg ) {
-	this.writeJSON( { 'ok' : msg } );
+	this.writeJSON( { error : null, value : msg } );
 }
 
 
@@ -50,9 +50,12 @@ function listener( req, res ) {
 
 	log("act="+act+" key="+key+" val="+val+" ttl="+ttl);
 
+
 	if(req.url == "/favicon.ico") { res.writeHead(410); res.end(); return; }
 
+
 	if(req.url == "/help") { res.end( helpText() ); return; }
+
 
 	if( act == 'save' ) {
 		// force immediate save to persistent storage
@@ -118,7 +121,7 @@ function listener( req, res ) {
 		}
 		*/
 
-		res.success( "stored: "+key );
+		res.success( "ok" );
 		return;
 	}
 
