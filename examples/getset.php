@@ -17,7 +17,7 @@ function get( $url, $rawOpts ) {
 	return curl_exec( $ch );
 }
 
-$host = 'http://cider.blkcat.net:3000';
+$host = 'http://example.com:3000';
 
 print "SETTING VALUE 'foo' to { 'foo' : 'bar' } : " . get( $host, array( 'act' => 'set', 'key' => 'foo', 'val' => '{ "foo" : "bar" }' ) );
 
