@@ -2,11 +2,9 @@
 # Cache - A simple cache for JSON data with a REST API
 
 
-# REST API
------------
+## REST API
 
-
-## /?act=set&key=foo&val=7&ttl=secs&save=true
+### /?act=set&key=foo&val=7&ttl=secs&save=true
 
 	Stores the given value under the key "foo".
 
@@ -32,12 +30,12 @@
 			If "true", cache is saved to disk after value is set or deleted.
 
 
-## /?act=get&key=foo
+### /?act=get&key=foo
 
 	Return the object stored under the key "foo".
 
 
-## /?act=save
+### /?act=save
 
 	Force cache to immediately be saved to disk.
 
