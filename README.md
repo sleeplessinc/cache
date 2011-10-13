@@ -1,4 +1,3 @@
-
 # Cache - A simple cache for JSON data with a REST API
 
 
@@ -38,5 +37,3 @@
 ### /?act=save
 
 	Force cache to immediately be saved to disk.
-
-
