@@ -1,5 +1,6 @@
 <?
-require_once "json.php";
+
+require_once "json.php";		// json2obj and obj2json functions
 
 $cacheHost = 'http://localhost:3000/';
 
@@ -46,6 +47,7 @@ if(true) {
 
 	$v = cacheGet("foo");
 	if($v == null) {
+		echo "setting ...\n";
 		cacheSet("foo", 13);
 		$v = cacheGet("foo");
 	}
