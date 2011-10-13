@@ -41,14 +41,14 @@ function cacheGet($k) {
 }
 
 
-if(true) {
+if(false) {
 
 	// test code
 
 	$v = cacheGet("foo");
 	if($v == null) {
 		echo "setting ...\n";
-		cacheSet("foo", 13);
+		cacheSet("foo", 15);
 		$v = cacheGet("foo");
 	}
 
