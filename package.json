@@ -1,7 +1,7 @@
 {
   "name": "cache",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple cache for JSON data with a REST API",
   "author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
   "license": {
     "type": "MIT",
