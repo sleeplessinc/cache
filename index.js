@@ -6,7 +6,7 @@ var fs		= require( 'fs' );
 var http	= require( 'http' );
 var url		= require( 'url' );
 
-var DS		= require( '../' ).DS;
+var DS		= require( 'ds' ).DS;
 var store	= new DS( './ds.json' );
 
 // store._expireTimes is where we store our expiration timestamps.

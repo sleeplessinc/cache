@@ -3,15 +3,14 @@
   "version": "1.0.0",
   "description": "A simple cache for JSON data with a REST API",
   "author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
+  "dependencies": {
+    "ds": "git://github.com/sleeplessinc/ds.git"
+  },
   "license": {
     "type": "MIT",
     "url": "https://github.com/sleeplessinc/cache/raw/master/LICENSE"
   },
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://sleeplessinc@github.com/sleeplessinc/cache.git"
-    }
-  ],
-  "repository": "git://github.com/sleeplessinc/cache.git"
+  "repository": "git://github.com/sleeplessinc/cache.git",
+  "main": "index",
+  "bin": { "cached": "./bin/cached" }
 }
