@@ -1,6 +1,6 @@
 {
   "name": "cache",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple cache for JSON data with a REST API",
   "author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
   "dependencies": {
