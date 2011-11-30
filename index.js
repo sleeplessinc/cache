@@ -1,1 +1,154 @@
-bin/cached
+#!/usr/bin/env node
+
+var log		= console.log;
+
+var fs		= require( 'fs' );
+var http	= require( 'http' );
+var url		= require( 'url' );
+
+var DS		= require( 'ds' ).DS;
+var store	= new DS( './ds.json' ); //, { autoSave: 10 } );
+
+// store._expireTimes is where we store our expiration timestamps.
+if( store[ "_expireTimes" ] === undefined) {
+	store[ "_expireTimes" ] = {}
+}
+var expireTimes = store[ "_expireTimes" ];
+
+
+// return current unix timestamp (# of secs since the epoch)
+function time() { return Math.floor( (new Date()).getTime() / 1000 ) }
+
+
+http.ServerResponse.prototype.writeJSON = function( json ) {
+	this.write( JSON.stringify( json ) );
+	this.end();
+}
+
+http.ServerResponse.prototype.error	= function( err ) {
+	this.writeJSON( { error : err, value : null } );
+}
+
+http.ServerResponse.prototype.success	= function( msg ) {
+	this.writeJSON( { error : null, value : msg } );
+}
+
+
+function helpText() {
+	return fs.readFileSync("help.txt", "utf8");
+}
+
+
+function listener( req, res ) {
+
+	var query	= url.parse( req.url, true ).query;
+
+	var act		= query.act;
+	var key		= query.key;		// filter bad chars out?
+	var val		= query.val;
+	var ttl		= parseInt(query.ttl) || 0;
+
+	//log("act="+act+" key="+key+" val="+val+" ttl="+ttl);
+
+
+	if( req.url == "/favicon.ico" ) { res.writeHead(410); res.end(); return; }
+
+
+	if( req.url == "/help" ) { res.end( helpText() ); return; }
+
+
+	if( act == 'save' ) {
+		// force immediate save to persistent storage
+		store.save();
+		res.success( 'Cache saved.' );
+		return;
+	}
+
+
+	if( act == 'get' ) {
+
+		if( ! key ) {
+			res.error( 'bad key' );
+			return;
+		}
+
+		var xtime = expireTimes[ key ];
+
+		if( xtime && time() >= xtime ) {
+			// cached value expired
+			delete expireTimes[ key ];
+			delete store[ key ];
+			... xxx
+		}
+
+		res.success( store[ key ] || null );
+
+		return;
+	}
+
+
+	if( act == 'set' ) {
+
+		if( ! key ) {
+			res.error( 'bad key' );
+			return;
+		}
+
+		
+		try {
+			val = JSON.parse( val );
+		}
+		catch(e) {
+			res.error( 'bad val' );
+			return;
+		}
+
+		if( val === null ) {
+			delete store[ key ];
+			if( query.save ) { store.save(); }		// not DRY
+			res.success( "ok" );
+			return;
+		}
+
+		store[ key ] = val;
+		if( query.save ) { store.save(); }		// not DRY
+
+		if( ttl > 0 ) {
+			expireTimes[ key ] = time() + ttl;
+		}
+
+		/*
+		if( /^_/.test( key ) ) {
+			// special vars start with _ ...
+		}
+		*/
+
+		res.success( "ok" );
+		return;
+	}
+
+
+	res.error( 'bad act' );
+
+}
+
+
+function pulse() {
+
+	// flush out old, stale values
+	for( k in store ) {
+		var xtime = expireTimes[ k ];
+		if( xtime && time() >= xtime ) {
+			delete expireTimes[ k ];
+			delete store[ k ];
+			//log( "dropped: "+k );
+		}
+	}
+
+}
+setInterval(pulse, 60 * 1000);
+
+
+http.createServer( listener ).listen( 3000 );
+
+
