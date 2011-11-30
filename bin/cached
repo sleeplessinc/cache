@@ -51,16 +51,17 @@ function listener( req, res ) {
 	//log("act="+act+" key="+key+" val="+val+" ttl="+ttl);
 
 
-	if(req.url == "/favicon.ico") { res.writeHead(410); res.end(); return; }
+	if( req.url == "/favicon.ico" ) { res.writeHead(410); res.end(); return; }
 
 
-	if(req.url == "/help") { res.end( helpText() ); return; }
+	if( req.url == "/help" ) { res.end( helpText() ); return; }
 
 
 	if( act == 'save' ) {
 		// force immediate save to persistent storage
 		store.save();
 		res.success( 'Cache saved.' );
+		return;
 	}
 
 
@@ -77,6 +78,7 @@ function listener( req, res ) {
 			// cached value expired
 			delete expireTimes[ key ];
 			delete store[ key ];
+			... xxx
 		}
 
 		res.success( store[ key ] || null );
@@ -92,19 +94,19 @@ function listener( req, res ) {
 			return;
 		}
 
-		//log("val="+val);
+		
 		try {
 			val = JSON.parse( val );
 		}
 		catch(e) {
-			res.error( 'bad JSON val: '+val );
+			res.error( 'bad val' );
 			return;
 		}
 
 		if( val === null ) {
 			delete store[ key ];
 			if( query.save ) { store.save(); }		// not DRY
-			res.success( 'Delete successful.' );
+			res.success( "ok" );
 			return;
 		}
 
@@ -125,8 +127,8 @@ function listener( req, res ) {
 		return;
 	}
 
-	
-	res.error( 'bad act: '+act );
+
+	res.error( 'bad act' );
 
 }
 
