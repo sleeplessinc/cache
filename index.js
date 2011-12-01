@@ -23,8 +23,6 @@ IN THE SOFTWARE.
 
 var DS		= require( 'ds' ).DS;
 
-//var log		= console.log;
-
 
 // return current unix timestamp; secs since epoch
 var time = function() { return Math.floor( (new Date()).getTime() / 1000 ) }
@@ -54,7 +52,7 @@ var Cache = function(file, opts) {
 			return
 		}
 
-		var oldVal = store[ key ]
+		var oldVal = store[ key ] || null
 
 		if(val === null) {
 			// clear value from cache
