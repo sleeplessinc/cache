@@ -1,154 +1,122 @@
-#!/usr/bin/env node
+/*
+Copyright 2011 Sleepless Software Inc. All rights reserved.
 
-var log		= console.log;
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-var fs		= require( 'fs' );
-var http	= require( 'http' );
-var url		= require( 'url' );
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE. 
+*/
+
 
 var DS		= require( 'ds' ).DS;
-var store	= new DS( './ds.json' ); //, { autoSave: 10 } );
 
-// store._expireTimes is where we store our expiration timestamps.
-if( store[ "_expireTimes" ] === undefined) {
-	store[ "_expireTimes" ] = {}
-}
-var expireTimes = store[ "_expireTimes" ];
+//var log		= console.log;
 
 
-// return current unix timestamp (# of secs since the epoch)
-function time() { return Math.floor( (new Date()).getTime() / 1000 ) }
+// return current unix timestamp; secs since epoch
+var time = function() { return Math.floor( (new Date()).getTime() / 1000 ) }
 
 
-http.ServerResponse.prototype.writeJSON = function( json ) {
-	this.write( JSON.stringify( json ) );
-	this.end();
-}
+var Cache = function(file, opts) {
 
-http.ServerResponse.prototype.error	= function( err ) {
-	this.writeJSON( { error : err, value : null } );
-}
+	opts = opts || {}
+	
+	var self = this
 
-http.ServerResponse.prototype.success	= function( msg ) {
-	this.writeJSON( { error : null, value : msg } );
-}
-
-
-function helpText() {
-	return fs.readFileSync("help.txt", "utf8");
-}
-
-
-function listener( req, res ) {
-
-	var query	= url.parse( req.url, true ).query;
-
-	var act		= query.act;
-	var key		= query.key;		// filter bad chars out?
-	var val		= query.val;
-	var ttl		= parseInt(query.ttl) || 0;
-
-	//log("act="+act+" key="+key+" val="+val+" ttl="+ttl);
-
-
-	if( req.url == "/favicon.ico" ) { res.writeHead(410); res.end(); return; }
-
-
-	if( req.url == "/help" ) { res.end( helpText() ); return; }
-
-
-	if( act == 'save' ) {
-		// force immediate save to persistent storage
-		store.save();
-		res.success( 'Cache saved.' );
-		return;
+	var store = self.store = new DS(file, opts)
+	if( store[ "_expireTimes" ] === undefined ) {
+		store[ "_expireTimes" ] = {}
 	}
+	var expireTimes = store[ "_expireTimes" ]
+
+	var nop = function() {}
 
 
-	if( act == 'get' ) {
+	self.set = function(key, val, ttl, cb) {
 
-		if( ! key ) {
-			res.error( 'bad key' );
-			return;
+		cb = cb || nop
+
+		if(!key) {
+			cb('bad key', null)
+			return
 		}
 
-		var xtime = expireTimes[ key ];
+		var oldVal = store[ key ]
 
-		if( xtime && time() >= xtime ) {
-			// cached value expired
-			delete expireTimes[ key ];
-			delete store[ key ];
-			... xxx
-		}
-
-		res.success( store[ key ] || null );
-
-		return;
-	}
-
-
-	if( act == 'set' ) {
-
-		if( ! key ) {
-			res.error( 'bad key' );
-			return;
-		}
-
-		
-		try {
-			val = JSON.parse( val );
-		}
-		catch(e) {
-			res.error( 'bad val' );
-			return;
-		}
-
-		if( val === null ) {
-			delete store[ key ];
-			if( query.save ) { store.save(); }		// not DRY
-			res.success( "ok" );
-			return;
+		if(val === null) {
+			// clear value from cache
+			delete expireTimes[ key ]
+			delete store[ key ]
+			cb(null, oldVal)
+			return
 		}
 
 		store[ key ] = val;
-		if( query.save ) { store.save(); }		// not DRY
 
-		if( ttl > 0 ) {
+		if( ttl > 0 ) 
 			expireTimes[ key ] = time() + ttl;
-		}
 
-		/*
-		if( /^_/.test( key ) ) {
-			// special vars start with _ ...
-		}
-		*/
-
-		res.success( "ok" );
-		return;
+		cb(null, oldVal)
 	}
 
 
-	res.error( 'bad act' );
+	self.get = function(key, cb) {
+
+		cb = cb || nop
+
+		if(!key) {
+			cb('bad key', null)
+			return;
+		}
+		var x = expireTimes[ key ];
+		if( x && time() >= x ) {
+			// cached value expired - return null
+			delete expireTimes[ key ];
+			delete store[ key ];
+		}
+		cb(null, store[ key ] || null )
+	}
+
+	self.save = function(file) {
+		store.save(file)
+	}
+
+
+	self.tick = function() {
+		// expire cached values
+		for(var key in store) {
+			var xt = expireTimes[ key ];
+			if( xt && time() >= xt ) {
+				delete expireTimes[ key ];
+				delete store[ key ];
+			}
+		}
+	}
+	var ts = parseInt(opts.tickSecs) || 0
+	if(ts > 0)
+		setInterval(self.tick, ts * 1000)
 
 }
 
 
-function pulse() {
+exports.Cache = Cache
 
-	// flush out old, stale values
-	for( k in store ) {
-		var xtime = expireTimes[ k ];
-		if( xtime && time() >= xtime ) {
-			delete expireTimes[ k ];
-			delete store[ k ];
-			//log( "dropped: "+k );
-		}
-	}
 
+if(require.main === module) {
+	require("./test.js")
 }
-setInterval(pulse, 60 * 1000);
-
-
-http.createServer( listener ).listen( 3000 );
 
 
