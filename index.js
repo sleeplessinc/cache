@@ -20,81 +20,82 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE. 
 */
 
+var DS = require( 'ds' ).DS
+var log = console.log
 
-var DS		= require( 'ds' ).DS;
 
-
-// return current unix timestamp; secs since epoch
+// return secs since epoch
 var time = function() { return Math.floor( (new Date()).getTime() / 1000 ) }
 
+var nop = function() {}
 
 var Cache = function(file, opts) {
 
-	opts = opts || {}
-	
 	var self = this
 
+	opts = opts || {}
+	
 	var store = self.store = new DS(file, opts)
 	if( store[ "_expireTimes" ] === undefined ) {
 		store[ "_expireTimes" ] = {}
 	}
 	var expireTimes = store[ "_expireTimes" ]
 
-	var nop = function() {}
+	self.put = function(key, val, ttl) {
 
+		ttl = parseInt(ttl) || 0
 
-	self.set = function(key, val, ttl, cb) {
-
-		cb = cb || nop
-
-		if(!key) {
-			cb('bad key', null)
-			return
-		}
+		if(!key)
+			return null
 
 		var oldVal = store[ key ] || null
 
 		if(val === null) {
-			// clear value from cache
+			// a null val means "remove value from cache"
 			delete expireTimes[ key ]
 			delete store[ key ]
-			cb(null, oldVal)
-			return
+			return oldVal
 		}
 
 		store[ key ] = val;
 
-		if( ttl > 0 ) 
-			expireTimes[ key ] = time() + ttl;
+		delete expireTimes[ key ]
+		if( ttl > 0 ) {
+			var ts = time()
+			var x = ts + ttl
+			expireTimes[ key ] = x
+		}
 
-		cb(null, oldVal)
+		return oldVal
 	}
 
 
-	self.get = function(key, cb) {
+	self.get = function(key) {
 
-		cb = cb || nop
-
-		if(!key) {
-			cb('bad key', null)
-			return;
-		}
+		if(!key)
+			return null
 		var x = expireTimes[ key ];
-		if( x && time() >= x ) {
-			// cached value expired - return null
+		var ts = time()
+		if( x && ts >= x ) {
+			// cached value expired. delete from cache and return null
 			delete expireTimes[ key ];
 			delete store[ key ];
+			return null
 		}
-		cb(null, store[ key ] || null )
+
+		return store[ key ] || null
+	}
+
+	self.del = function(key) {
+		return self.put(key, null)
 	}
 
 	self.save = function(file) {
 		store.save(file)
 	}
 
-
+	// periodically expire cached values if tickSecs option provided
 	self.tick = function() {
-		// expire cached values
 		for(var key in store) {
 			var xt = expireTimes[ key ];
 			if( xt && time() >= xt ) {

@@ -1,6 +1,6 @@
 {
   "name": "cache",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A simple cache for JSON data with a REST API",
   "author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
   "dependencies": {
@@ -11,6 +11,6 @@
     "url": "https://github.com/sleeplessinc/cache/raw/master/LICENSE"
   },
   "repository": "git://github.com/sleeplessinc/cache.git",
-  "main": "index",
+  "main": "index.js",
   "bin": { "cached": "./bin/cached" }
 }
