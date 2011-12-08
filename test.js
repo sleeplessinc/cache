@@ -2,6 +2,7 @@
 var Cache = require("./index.js").Cache
 var assert = require("assert")
 
+var c
 var v
 
 c = new Cache()
@@ -39,9 +40,5 @@ setTimeout(function() {
 	}, 4 * 1000)
 
 }, 2 * 1000)
-
-
-
-
 
 
