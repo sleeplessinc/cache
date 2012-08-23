@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/sleeplessinc/cache.png)](http://travis-ci.org/sleeplessinc/cache)
 # Cache - A simple cache for JSON data with a REST API
 
 
