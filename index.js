@@ -1,5 +1,5 @@
 /*
-Copyright 2011 Sleepless Software Inc. All rights reserved.
+Copyright 2013 Sleepless Software Inc. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to
@@ -21,10 +21,9 @@ IN THE SOFTWARE.
 */
 
 var DS = require( 'ds' ).DS
-var log = console.log
 
 
-// return secs since epoch
+// secs since epoch
 var time = function() { return Math.floor( (new Date()).getTime() / 1000 ) }
 
 var nop = function() {}
@@ -34,7 +33,7 @@ var Cache = function(file, opts) {
 	var self = this
 
 	opts = opts || {}
-	
+
 	var store = self.store = new DS(file, opts)
 	if( store[ "_expireTimes" ] === undefined ) {
 		store[ "_expireTimes" ] = {}
@@ -104,7 +103,7 @@ var Cache = function(file, opts) {
 			}
 		}
 	}
-	var ts = parseInt(opts.tickSecs) || 0
+	var ts = parseInt(opts.tickSecs, 10) || 0
 	if(ts > 0)
 		setInterval(self.tick, ts * 1000)
 
