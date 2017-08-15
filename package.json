@@ -4,7 +4,7 @@
   "description": "Simple cache for JSON data with a REST API",
   "author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
   "dependencies": {
-    "ds": "git://github.com/sleeplessinc/ds.git"
+    "ds": "^1.4.2"
   },
   "license": {
     "type": "MIT",
