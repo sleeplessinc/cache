@@ -1,10 +1,12 @@
 
 # Cache - A simple caching object with TTL
 
-## Usage
+## Install
 
 	npm install cache
 
+
+## Usage
 
 	Cache = require("cache");
 
