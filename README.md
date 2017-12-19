@@ -1,6 +1,9 @@
 
 # Cache - A simple caching object with TTL
 
+Copyright 2017 Sleepless Software Inc. All rights reserved.
+
+
 ## Install
 
 	npm install cache
