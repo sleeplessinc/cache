@@ -28,10 +28,13 @@ function Cache(ttl) {
 		return oldval
 	}
 
-	me.put = function(key, val) {
+	me.put = function(key, val, ttl) {
+		if(ttl === undefined) {
+			ttl = me.ttl;
+		}
 		var oldval = me.del(key); 
 		if(val !== null)
-			me.data[ key ] = { expires: me.now() + me.ttl, val: val }
+			me.data[ key ] = { expires: me.now() + ttl, val: val }
 		return oldval
 	}
 
