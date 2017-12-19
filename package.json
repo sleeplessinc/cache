@@ -1,6 +1,6 @@
 {
   "name": "cache",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Simple caching object without ttl",
   "main": "index.js",
   "scripts": {
