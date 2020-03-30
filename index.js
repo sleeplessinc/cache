@@ -3,7 +3,7 @@
 
 DS = require("ds").DS;
 
-function Cache(ttl) {
+function Cache(ttl, save_file) {
 
 	var me = this;
 
@@ -20,6 +20,7 @@ function Cache(ttl) {
 			if(me.now() >= obj.expires) {
 				val = null
 				delete me.data[key]
+				me.save();
 			}
 		}
 		if(cb)
@@ -30,6 +31,7 @@ function Cache(ttl) {
 	me.del = function(key, cb) {
 		var oldval = me.get(key); 
 		delete me.data[key]
+		me.save();
 		if(cb)
 			cb(oldval)
 		return oldval
@@ -40,18 +42,20 @@ function Cache(ttl) {
 			ttl = me.ttl;
 		}
 		var oldval = me.del(key); 
-		if(val !== null)
+		if(val !== null) {
 			me.data[ key ] = { expires: me.now() + ttl, val: val }
+			me.save();
+		}
 		if(cb)
 			cb(oldval)
 		return oldval
 	}
 
-	me.save = function(file_path, cb) {
-		me.data.save(file_path);
-		cb();
+	me.save = function() {
+		if( save_file ) {
+			me.data.save(save_file);
+		}
 	}
-
 }
 
 module.exports = Cache;
