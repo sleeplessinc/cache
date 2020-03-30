@@ -31,7 +31,11 @@ Copyright 2017 Sleepless Software Inc. All rights reserved.
 
 	}, 11 * 1000);
 
+	// also you can do ...
+	c.del(key)            // delete key/val before expiry
 
+
+## API
 
 
 
