@@ -10,7 +10,7 @@ function Cache(ttl, save_file) {
 	me.now = function() { return (new Date()).getTime() }
 	me.ttl = ttl || 0;
 	//me.data = {}
-	me.data = new DS();
+	me.data = new DS(save_file);
 
 	me.get = function(key, cb) {
 		var val = null

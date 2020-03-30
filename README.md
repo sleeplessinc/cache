@@ -31,12 +31,24 @@ Copyright 2017 Sleepless Software Inc. All rights reserved.
 
 	}, 11 * 1000);
 
-	// also you can do ...
+
+## More
+
+You can also do some other stuff.
+
 	c.del(key)            // delete key/val before expiry
 
+You can create a cache that will write its contents to a file in
+JSON form (not recommended for production purposes):
 
-## API
+	c = new Cache(10 * 1000, "data.json");
 
+Now, when do anything that changes the contents of the cache,
+it will write it to the file "data.json":
 
+	c.put(key, val);		// data.json appears
+
+Also, the cache will be preloaded from the file when you
+instantiate it, if the file is present.
 
 
