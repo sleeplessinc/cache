@@ -1,7 +1,7 @@
 {
   "name": "cache",
   "version": "2.3.1",
-  "description": "Simple caching object without ttl",
+  "description": "Simple caching object with TTL",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
