@@ -1,20 +1,14 @@
 {
   "name": "cache",
-  "version": "2.3.1",
-  "description": "Simple caching object without ttl",
+  "version": "3.0.0",
+  "description": "Simple caching object with optional TTL and file system persistence.",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sleeplessinc/cache.git"
   },
   "author": "Joe Hitchens <joe@sleepless.com>",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/sleeplessinc/cache/issues"
-  },
   "homepage": "https://github.com/sleeplessinc/cache#readme",
   "dependencies": {
     "ds": "^1.4.2"
