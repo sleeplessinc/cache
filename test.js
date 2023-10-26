@@ -1,3 +1,4 @@
+const fs = require('fs')
 
 function throwIf(c, s) {
 	if(c) {
@@ -13,6 +14,13 @@ function log(s) {
 
 Cache = require("./index.js");
 
+c = new Cache(60 * 1000, 'test.json') // create a persisted cache
+c.put('test', 12345)
+
+c = new Cache(60 * 1000, 'test.json') // recreate persisted cache
+throwIf(c.get('test') !== 12345, 'data is not persisted')
+
+fs.unlinkSync('test.json')
 
 c = new Cache(1 * 1000);		// defaults to 1 sec TTL
 

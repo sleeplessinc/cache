@@ -10,7 +10,7 @@ function Cache( ttl = 0, save_file = null ) {
 
 	me.now = function() { return (new Date()).getTime() }
 	me.ttl = ttl || 0;
-	me.data = new DS();
+	me.data = new DS(save_file);
 
 	let save = function() {
 		if( save_file )
@@ -41,7 +41,7 @@ function Cache( ttl = 0, save_file = null ) {
 	}
 
 	me.del = function(key, cb) {
-		let oldval = me.get(key); 
+		let oldval = me.get(key);
 		nuke( key );
 		if(cb)
 			cb(oldval);
@@ -52,7 +52,7 @@ function Cache( ttl = 0, save_file = null ) {
 		if(ttl == 0)
 			ttl = me.ttl;
 		let expires = ( ttl == 0 ) ? 0 : ( me.now() + ttl );
-		var oldval = me.del(key); 
+		var oldval = me.del(key);
 		if(val !== null) {
 			me.data[ key ] = {
 				expires,
